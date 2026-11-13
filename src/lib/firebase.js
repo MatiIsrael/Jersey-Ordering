@@ -93,18 +93,49 @@ export function subscribeRegistrations(cb, onError) {
   )
 }
 
+/** Compress + convert a File to a base64 data URL (kept small for Firestore). */
+async function fileToDataURL(file) {
+  const bitmap = await createImageBitmap(file)
+  const maxDim = 1280
+  const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height))
+  const width = Math.max(1, Math.round(bitmap.width * scale))
+  const height = Math.max(1, Math.round(bitmap.height * scale))
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  const ctx = canvas.getContext('2d')
+  ctx.drawImage(bitmap, 0, 0, width, height)
+  const blob = await new Promise((res) => canvas.toBlob(res, 'image/jpeg', 0.82))
+  const buf = await blob.arrayBuffer()
+  const bytes = new Uint8Array(buf)
+  let bin = ''
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i])
+  const dataUrl = `data:image/jpeg;base64,${btoa(bin)}`
+  if (bitmap.close) bitmap.close()
+  return dataUrl
+}
+
 /** Upload a payment screenshot and create the registration document. */
 export async function createRegistration({ registrationId, payload, file }) {
-  if (!db || !storage) throw new Error('Firebase is not configured')
+  if (!db) throw new Error('Firebase is not configured')
 
-  // 1. Upload the screenshot to Storage: payment-screenshots/{regId}/payment-proof.ext
-  const ext = file.name.split('.').pop().toLowerCase().replace('jpeg', 'jpg')
-  const path = `payment-screenshots/${registrationId}/payment-proof.${ext}`
-  const storageRef = ref(storage, path)
-  await uploadBytes(storageRef, file, { contentType: file.type })
+  // 1. Try Firebase Storage: payment-screenshots/{regId}/payment-proof.ext
+  let screenshot = ''
+  let paymentPath = `inline/${registrationId}`
 
-  // 2. Get a public download URL for the dashboard
-  const downloadURL = await getDownloadURL(storageRef)
+  try {
+    const ext = file.name.split('.').pop().toLowerCase().replace('jpeg', 'jpg')
+    const path = `payment-screenshots/${registrationId}/payment-proof.${ext}`
+    const storageRef = ref(storage, path)
+    await uploadBytes(storageRef, file, { contentType: file.type })
+    const downloadURL = await getDownloadURL(storageRef)
+    screenshot = downloadURL
+    paymentPath = path
+  } catch (storageErr) {
+    // Storage unavailable → store as base64 data URL directly in Firestore
+    screenshot = await fileToDataURL(file)
+    paymentPath = `inline/${registrationId}`
+  }
 
   // 3. Create the Firestore document
   await addDoc(collection(db, REGISTRATIONS), {
@@ -114,13 +145,13 @@ export async function createRegistration({ registrationId, payload, file }) {
     tshirt_size: payload.tshirt_size,
     no_tshirt_print: payload.no_tshirt_print,
     payment_method: payload.payment_method,
-    payment_screenshot: downloadURL,
-    payment_path: path,
+    payment_screenshot: screenshot,
+    payment_path: paymentPath,
     status: 'Pending',
     created_at: serverTimestamp(),
   })
 
-  return { registrationId, downloadURL }
+  return { registrationId, downloadURL: screenshot }
 }
 
 /** Update the status of a registration (Pending / Verified / Rejected). */
