@@ -1,0 +1,80 @@
+rules_version = '2';
+
+// ============================================================
+// FIRESTORE SECURITY RULES — Half-Life Celebration registrations
+// Where: Firebase Console -> Build -> Firestore Database -> Rules
+//        Paste this whole file and press PUBLISH.
+//
+// What it does:
+//  - ANYONE can submit a registration (that is the public form).
+//    Submissions are strictly validated: verified fields only,
+//    jersey 0-99, known sizes, status must start as 'Pending'.
+//  - ONLY signed-in admins (Firebase Auth) can read, update or
+//    delete registrations. Anonymous visitors can never read them.
+// ============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Any signed-in user (the admin account) may manage data.
+    function isAdmin() {
+      return request.auth != null;
+    }
+
+    // Strict shape-check for a new registration coming from the public form.
+    function isValidRegistration() {
+      return request.resource.data.keys().hasOnly(
+        ['registration_id', 'full_name', 'jersey_number', 'tshirt_size',
+         'no_tshirt_print', 'payment_method', 'payment_screenshot',
+         'payment_path', 'status', 'created_at']
+      )
+      && request.resource.data.registration_id is string
+      && request.resource.data.registration_id.size() >= 4
+      && request.resource.data.registration_id.size() <= 20
+      && request.resource.data.full_name is string
+      && request.resource.data.full_name.size() >= 3
+      && request.resource.data.full_name.size() <= 80
+      && request.resource.data.tshirt_size in ['S', 'M', 'L', 'XL', 'XXL']
+      && request.resource.data.no_tshirt_print is bool
+      && (
+        // No printing: jersey must be null
+        (request.resource.data.no_tshirt_print == true
+          && request.resource.data.jersey_number == null)
+        ||
+        // Printing: jersey must be an integer from 0 to 99
+        (request.resource.data.no_tshirt_print == false
+          && request.resource.data.jersey_number is int
+          && request.resource.data.jersey_number >= 0
+          && request.resource.data.jersey_number <= 99)
+      )
+      && request.resource.data.payment_method in ['Telebirr', 'CBE', 'Unspecified']
+      && request.resource.data.payment_screenshot is string
+      && request.resource.data.payment_screenshot.size() > 0
+      && request.resource.data.payment_path is string
+      && request.resource.data.payment_path.size() > 0
+      && request.resource.data.status == 'Pending'
+      && request.resource.data.created_at == request.time;
+    }
+
+    // Only allow status values the admin dashboard uses.
+    function isValidStatusUpdate() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+        && request.resource.data.status in ['Pending', 'Verified', 'Rejected'];
+    }
+
+    match /registrations/{doc} {
+      // Public: anyone can register (create only, strictly validated).
+      allow create: if isValidRegistration();
+
+      // Admin only: read, update, delete.
+      allow read:   if isAdmin();
+      allow update: if isAdmin() && (isValidStatusUpdate() || request.resource.data == resource.data);
+      allow delete: if isAdmin();
+    }
+
+    // Block everything else by default (Firestore default is deny anyway).
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

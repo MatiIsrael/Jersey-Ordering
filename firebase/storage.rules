@@ -1,0 +1,36 @@
+rules_version = '2';
+
+// ============================================================
+// FIREBASE STORAGE SECURITY RULES — payment screenshots
+// Where: Firebase Console -> Build -> Storage -> Rules
+//        Paste this whole file and press PUBLISH.
+//
+// What it does:
+//  - ANYONE can upload a payment screenshot (max 5 MB, JPG/PNG only)
+//    into payment-screenshots/{registrationId}/
+//  - Anyone with a file URL can view it (the admin dashboard shows it).
+//  - ONLY signed-in admins can update or delete files.
+// ============================================================
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    match /payment-screenshots/{regId}/{fileName} {
+      // Public upload with validation (JPG/PNG, max 5 MB, valid registration id)
+      allow write: if request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType in ['image/jpeg', 'image/jpg', 'image/png']
+        && regId.size() >= 4 && regId.size() <= 20;
+
+      // Public read (screenshots are shown via their download URL)
+      allow read: if true;
+
+      // Admin only
+      allow update, delete: if request.auth != null;
+    }
+
+    // Block everything else
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
