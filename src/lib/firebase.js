@@ -93,10 +93,30 @@ export function subscribeRegistrations(cb, onError) {
   )
 }
 
+/**
+ * Cheap probe: does the Storage bucket actually exist?
+ * A missing bucket makes uploadBytes retry for many minutes before failing,
+ * so we check once (and cache the result) instead of hanging the submit button.
+ */
+let storageAvailable = null
+
+async function checkStorageAvailable() {
+  if (storageAvailable !== null) return storageAvailable
+  try {
+    const res = await fetch(
+      `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o?maxResults=1`,
+    )
+    // 404 = bucket does not exist → Storage unusable; anything else → usable
+    storageAvailable = res.status !== 404
+  } catch {
+    storageAvailable = false
+  }
+  return storageAvailable
+}
+
 /** Compress + convert a File to a base64 data URL (kept small for Firestore). */
-async function fileToDataURL(file) {
+async function fileToDataURL(file, { maxDim = 1280, quality = 0.82 } = {}) {
   const bitmap = await createImageBitmap(file)
-  const maxDim = 1280
   const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height))
   const width = Math.max(1, Math.round(bitmap.width * scale))
   const height = Math.max(1, Math.round(bitmap.height * scale))
@@ -105,7 +125,7 @@ async function fileToDataURL(file) {
   canvas.height = height
   const ctx = canvas.getContext('2d')
   ctx.drawImage(bitmap, 0, 0, width, height)
-  const blob = await new Promise((res) => canvas.toBlob(res, 'image/jpeg', 0.82))
+  const blob = await new Promise((res) => canvas.toBlob(res, 'image/jpeg', quality))
   const buf = await blob.arrayBuffer()
   const bytes = new Uint8Array(buf)
   let bin = ''
@@ -119,22 +139,34 @@ async function fileToDataURL(file) {
 export async function createRegistration({ registrationId, payload, file }) {
   if (!db) throw new Error('Firebase is not configured')
 
-  // 1. Try Firebase Storage: payment-screenshots/{regId}/payment-proof.ext
+  // 1. Try Firebase Storage ONLY if the bucket actually exists
+  //    (a missing bucket makes uploadBytes retry for minutes → submit hangs)
   let screenshot = ''
   let paymentPath = `inline/${registrationId}`
 
-  try {
-    const ext = file.name.split('.').pop().toLowerCase().replace('jpeg', 'jpg')
-    const path = `payment-screenshots/${registrationId}/payment-proof.${ext}`
-    const storageRef = ref(storage, path)
-    await uploadBytes(storageRef, file, { contentType: file.type })
-    const downloadURL = await getDownloadURL(storageRef)
-    screenshot = downloadURL
-    paymentPath = path
-  } catch (storageErr) {
-    // Storage unavailable → store as base64 data URL directly in Firestore
+  const canUseStorage = Boolean(storage) && (await checkStorageAvailable())
+
+  if (canUseStorage) {
+    try {
+      const ext = file.name.split('.').pop().toLowerCase().replace('jpeg', 'jpg')
+      const path = `payment-screenshots/${registrationId}/payment-proof.${ext}`
+      const storageRef = ref(storage, path)
+      await uploadBytes(storageRef, file, { contentType: file.type })
+      screenshot = await getDownloadURL(storageRef)
+      paymentPath = path
+    } catch (storageErr) {
+      // Storage failed at upload time → inline fallback
+      screenshot = await fileToDataURL(file)
+      paymentPath = `inline/${registrationId}`
+    }
+  } else {
+    // Storage not available → store as base64 data URL directly in Firestore
     screenshot = await fileToDataURL(file)
-    paymentPath = `inline/${registrationId}`
+  }
+
+  // Keep the document safely under Firestore's 1MB limit
+  if (screenshot.startsWith('data:') && screenshot.length > 900000) {
+    screenshot = await fileToDataURL(file, { maxDim: 900, quality: 0.6 })
   }
 
   // 3. Create the Firestore document
@@ -164,8 +196,8 @@ export async function updateRegistrationStatus(docId, status) {
 export async function deleteRegistration(reg) {
   if (!db) throw new Error('Firebase is not configured')
   await deleteDoc(doc(db, REGISTRATIONS, reg.id))
-  // Best-effort cleanup of the screenshot file
-  if (reg.payment_path && storage) {
+  // Best-effort cleanup of the screenshot file (skip inline base64 entries)
+  if (reg.payment_path && storage && !String(reg.payment_path).startsWith('inline/')) {
     await deleteObject(ref(storage, reg.payment_path)).catch(() => {})
   }
 }
