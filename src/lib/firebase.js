@@ -26,25 +26,26 @@ import {
 } from 'firebase/storage'
 
 // ------------------------------------------------------------
-// Firebase config from environment variables (.env)
+// Firebase config — env vars first (.env / Vercel dashboard),
+// with the real project values as fallback so any deployment
+// (Vercel, Netlify, GitHub Pages) works out of the box.
 // These values identify the project — they are safe to expose;
 // real security is enforced by the rules in /firebase/*.rules
 // and by Firebase Auth (admin password is NEVER stored in code).
 // ------------------------------------------------------------
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MSG_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyCDnmIYpaOHfiuVySJqOZt7PsR-drzSUms',
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'half-life-ab247.firebaseapp.com',
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'half-life-ab247',
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'half-life-ab247.firebasestorage.app',
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MSG_SENDER_ID || '431296416204',
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:431296416204:web:7555c3f71e9f17929f7569',
 }
 
 export const isFirebaseConfigured =
   Boolean(firebaseConfig.apiKey) &&
   Boolean(firebaseConfig.projectId) &&
-  Boolean(firebaseConfig.appId) &&
-  !String(firebaseConfig.apiKey).includes('YOUR_')
+  Boolean(firebaseConfig.appId)
 
 const app = isFirebaseConfigured ? initializeApp(firebaseConfig) : null
 
