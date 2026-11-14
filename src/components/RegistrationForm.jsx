@@ -544,7 +544,7 @@ export default function RegistrationForm() {
               title="Submit"
               helper="Double-check your details above, then submit your registration."
             >
-              <div className="rounded-xl bg-[#f9fafb] px-4 py-3 text-sm leading-relaxed text-[#667085]">
+              <div className="break-words rounded-xl bg-[#f9fafb] px-4 py-3 text-sm leading-relaxed text-[#667085]">
                 <span className="font-semibold text-[#344054]">Summary — </span>
                 {form.fullName.trim() ? (
                   <span className="font-semibold text-[#101828]">{form.fullName.trim()}</span>

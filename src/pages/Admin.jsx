@@ -20,7 +20,9 @@ const STATUS_STYLES = {
 
 function formatDate(iso) {
   if (!iso) return '—'
-  const d = new Date(iso)
+  // Firestore Timestamp objects ({ seconds, nanoseconds }) come from onSnapshot
+  const d = iso && typeof iso === 'object' && 'seconds' in iso ? new Date(iso.seconds * 1000) : new Date(iso)
+  if (Number.isNaN(d.getTime())) return '—'
   return d.toLocaleString(undefined, {
     year: 'numeric',
     month: 'short',
@@ -274,13 +276,15 @@ function Dashboard({ onSignOut }) {
   return (
     <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
       {/* Header */}
-      <div className="mb-7 flex flex-wrap items-center justify-between gap-4">
-        <div>
+      <div className="mb-7 flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+        <div className="min-w-0">
           <p className="section-label">AUWC Order Jersey</p>
-          <h1 className="h1 mt-1 text-[1.75rem]">Admin Dashboard</h1>
+          <h1 className="mt-1 text-[1.5rem] font-extrabold tracking-tight text-[#101828] sm:text-[1.75rem]">
+            Admin Dashboard
+          </h1>
           <p className="mt-1 text-sm text-[#667085]">Manage all event registrations.</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex shrink-0 gap-2">
           <span className="badge badge-green self-center" title="This dashboard updates in real time">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full rounded-full bg-[#12b76a] opacity-60" />
@@ -336,7 +340,7 @@ function Dashboard({ onSignOut }) {
       {toast && (
         <div
           role="status"
-          className="fixed bottom-5 left-1/2 z-40 -translate-x-1/2 rounded-xl bg-[#101828] px-4 py-2.5 text-sm font-medium text-white shadow-lg"
+          className="toast-mobile fixed bottom-5 left-1/2 z-40 -translate-x-1/2 rounded-xl bg-[#101828] px-4 py-2.5 text-sm font-medium text-white shadow-lg"
         >
           {toast}
         </div>
@@ -366,7 +370,8 @@ function Dashboard({ onSignOut }) {
         </div>
       ) : (
         <div className="card overflow-hidden">
-          <div className="overflow-x-auto">
+          {/* Desktop / tablet: full table */}
+          <div className="hidden overflow-x-auto sm:block">
             <table className="data-table min-w-[980px]">
               <thead>
                 <tr>
@@ -468,6 +473,68 @@ function Dashboard({ onSignOut }) {
               </tbody>
             </table>
           </div>
+          {/* Mobile: stacked registration cards */}
+          <ul className="divide-y divide-[#f2f4f7] sm:hidden">
+            {filtered.map((r) => (
+              <li key={r.id} className="p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold text-[#101828]">{r.full_name}</p>
+                    <p className="mono mt-0.5 text-xs font-semibold text-[#4f46e5]">{r.registration_id}</p>
+                  </div>
+                  <select
+                    value={r.status}
+                    disabled={busyId === r.id}
+                    onChange={(e) => updateStatus(r, e.target.value)}
+                    aria-label={`Status for ${r.full_name}`}
+                    className={`badge shrink-0 cursor-pointer border-0 font-semibold outline-none ring-1 ${STATUS_STYLES[r.status] || 'badge-gray'}`}
+                  >
+                    {STATUSES.map((s) => (
+                      <option key={s} value={s} className="bg-white font-medium text-[#344054]">
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {r.jersey_number != null && !r.no_tshirt_print && (
+                    <span className="badge badge-gray">#{r.jersey_number}</span>
+                  )}
+                  {r.tshirt_size && <span className="badge badge-gray">Size {r.tshirt_size}</span>}
+                  {r.no_tshirt_print && <span className="badge badge-violet">No print</span>}
+                  <span className="badge badge-gray">{r.payment_method}</span>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between gap-2">
+                  <span className="text-xs text-[#667085]">{formatDate(r.created_at)}</span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setViewer(r)}
+                      className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-semibold text-[#4f46e5] hover:bg-[#f9fafb]"
+                    >
+                      <img
+                        src={r.payment_screenshot}
+                        alt=""
+                        loading="lazy"
+                        className="h-9 w-9 rounded-lg border border-[#e4e7ec] object-cover"
+                      />
+                      View
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDeleteTarget(r)}
+                      disabled={busyId === r.id}
+                      className="btn btn-ghost !px-2.5 !py-1.5 !text-xs !text-[#b42318] hover:!bg-[#fef3f2]"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
           <div className="border-t border-[#e4e7ec] bg-[#f9fafb] px-4 py-3 text-xs text-[#667085] sm:px-5">
             Showing {filtered.length} of {rows.length} registrations
           </div>

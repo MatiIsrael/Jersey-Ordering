@@ -15,16 +15,21 @@ export default function Home() {
     <div className="flex min-h-screen flex-col">
       {/* ---------- Top bar ---------- */}
       <header className="sticky top-0 z-30 border-b border-[#e4e7ec] bg-white/90 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-2.5">
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-2 px-4 py-3 sm:gap-3 sm:px-6">
+          <div className="flex min-w-0 items-center gap-2.5">
             <LogoMark />
-            <div className="leading-tight">
-              <p className="text-sm font-bold text-[#101828] inline-block">AUWC Order Jersey</p>
-              <p className="text-[11px] font-medium text-[#667085]">Department of CoTM class Jersey Order</p>
+            <div className="min-w-0 leading-tight">
+              <p className="truncate text-sm font-bold text-[#101828] inline-block max-w-full">AUWC Order Jersey</p>
+              <p className="truncate text-[11px] font-medium text-[#667085] max-w-[180px] sm:max-w-none">
+                Department of CoTM class Jersey Order
+              </p>
             </div>
           </div>
-          <div className="self-center">
-            <a href="/#/admin" className="text-sm font-medium text-[#4f46e5] hover:underline">
+          <div className="shrink-0">
+            <a
+              href="/#/admin"
+              className="inline-flex min-h-[44px] items-center px-2 text-sm font-medium text-[#4f46e5] hover:underline"
+            >
               Admin
             </a>
           </div>
@@ -34,11 +39,13 @@ export default function Home() {
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 pb-14 pt-8 sm:px-6 sm:pt-10">
         {/* ---------- Event header ---------- */}
         <div className="mb-8 text-center sm:mb-10">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#4f46e5]">{EVENT.subtitle}</p>
-          <h2 className="text-2xl font-bold text-[#101828] mb-1">
+          <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-[#4f46e5] sm:text-xs">
+            {EVENT.subtitle}
+          </p>
+          <h2 className="mb-1 text-[1.375rem] font-bold text-[#101828] sm:text-2xl">
             AUWC Order Jersey
           </h2>
-          <h2 className="text-base text-[#667085] mb-4">
+          <h2 className="mb-4 text-sm text-[#667085] sm:text-base">
             Department of CoTM class Jersey Order
           </h2>
         </div>

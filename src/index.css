@@ -503,3 +503,61 @@ body {
   font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', Consolas, monospace;
   letter-spacing: 0.02em;
 }
+
+/* ============================================================
+   MOBILE — phones (≤ 640px)
+   ============================================================ */
+@media (max-width: 640px) {
+  /* Slightly tighter cards */
+  .card {
+    border-radius: 14px;
+  }
+  .card-lg {
+    border-radius: 16px;
+  }
+
+  /* 16px prevents iOS Safari from auto-zooming into focused inputs */
+  .input {
+    font-size: 1rem;
+  }
+
+  /* Comfortable touch targets for all buttons */
+  .btn,
+  .btn-primary,
+  .btn-secondary,
+  .btn-ghost,
+  .btn-danger {
+    min-height: 44px;
+  }
+  .btn-copy {
+    min-height: 38px;
+  }
+
+  /* Tighter tables so payment info fits narrow screens */
+  .data-table {
+    font-size: 0.8125rem;
+  }
+  .data-table thead th {
+    padding: 0.625rem 0.75rem;
+  }
+  .data-table tbody td {
+    padding: 0.75rem;
+  }
+
+  /* Smaller dropzone + banners on phones */
+  .dropzone {
+    padding: 1.75rem 1rem;
+  }
+  .banner {
+    font-size: 0.8125rem;
+    padding: 0.75rem 0.875rem;
+  }
+
+  /* Toast never blocks the whole width */
+  .toast-mobile {
+    left: 1rem;
+    right: 1rem;
+    transform: none;
+    text-align: center;
+  }
+}
