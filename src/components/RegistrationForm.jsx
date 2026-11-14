@@ -283,7 +283,7 @@ export default function RegistrationForm() {
             {/* ---------- PAYMENT INFORMATION (read first) ---------- */}
             <section id="payment" className="scroll-mt-20">
               <div className="mb-4 flex items-start gap-3">
-                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#fffaeb] text-[#b54708] ring-1 ring-[#fedf89]">
+                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#eef2ff] text-[#4f46e5] ring-1 ring-[#c7d2fe]">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>
                 </span>
                 <div>

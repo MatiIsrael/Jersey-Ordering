@@ -260,9 +260,9 @@ body {
   color: #175cd3;
 }
 .banner-warn {
-  background: #fffaeb;
-  border: 1px solid #fedf89;
-  color: #b54708;
+  background: #f2f4f7;
+  border: 1px solid #d0d5dd;
+  color: #344054;
 }
 .banner-error {
   background: #fef3f2;
@@ -299,10 +299,10 @@ body {
   color: #067647;
   border-color: #abefc6;
 }
-.badge-amber {
-  background: #fffaeb;
-  color: #b54708;
-  border-color: #fedf89;
+.badge-gray {
+  background: #f2f4f7;
+  color: #344054;
+  border-color: #d0d5dd;
 }
 .badge-red {
   background: #fef3f2;

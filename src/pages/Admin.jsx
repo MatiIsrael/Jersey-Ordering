@@ -13,7 +13,7 @@ import {
 const STATUSES = ['Pending', 'Verified', 'Rejected']
 
 const STATUS_STYLES = {
-  Pending: 'badge-amber',
+  Pending: 'badge-gray',
   Verified: 'badge-green',
   Rejected: 'badge-red',
 }
@@ -176,7 +176,7 @@ function ScreenshotModal({ registration, onClose }) {
 function StatCard({ label, value, tone }) {
   const tones = {
     total: 'text-[#101828]',
-    pending: 'text-[#b54708]',
+    pending: 'text-[#344054]',
     verified: 'text-[#067647]',
     rejected: 'text-[#b42318]',
   }
@@ -541,8 +541,8 @@ export default function Admin() {
       return (
         <main className="flex min-h-screen items-center justify-center px-4">
           <div className="card card-lg max-w-md px-8 py-9 text-center">
-            <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#fffaeb]">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#b54708" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+            <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff]">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
             </span>
             <h1 className="h2">Firebase is not configured</h1>
             <p className="mt-2 text-sm leading-relaxed text-[#667085]">
