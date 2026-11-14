@@ -7,7 +7,7 @@
 // ============================================================
 
 export const EVENT = {
-  title: 'University Half-Life Celebration',
+  title: 'AUWC Order Jersey',
   subtitle: 'University Grand Celebration',
   description:
     'A night to remember for every student — music, culture, awards and unity. Pay the registration fee, upload your payment proof, pick your jersey and be part of the biggest celebration of the year.',

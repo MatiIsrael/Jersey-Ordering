@@ -276,7 +276,7 @@ function Dashboard({ onSignOut }) {
       {/* Header */}
       <div className="mb-7 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="section-label">Half-Life Celebration</p>
+          <p className="section-label">AUWC Order Jersey</p>
           <h1 className="h1 mt-1 text-[1.75rem]">Admin Dashboard</h1>
           <p className="mt-1 text-sm text-[#667085]">Manage all event registrations.</p>
         </div>

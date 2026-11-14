@@ -5,7 +5,7 @@ import { EVENT } from '../config.js'
 function LogoMark() {
   return (
     <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#4f46e5] font-sans text-sm font-extrabold text-white shadow-sm">
-      HL
+      AUWC
     </span>
   )
 }
@@ -19,7 +19,7 @@ export default function Home() {
           <div className="flex items-center gap-2.5">
             <LogoMark />
             <div className="leading-tight">
-              <p className="text-sm font-bold text-[#101828] inline-block">AUWC Half Life Celebration</p>
+              <p className="text-sm font-bold text-[#101828] inline-block">AUWC Order Jersey</p>
               <p className="text-[11px] font-medium text-[#667085]">Department of CoTM class Jersey Order</p>
             </div>
           </div>
@@ -36,7 +36,7 @@ export default function Home() {
         <div className="mb-8 text-center sm:mb-10">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#4f46e5]">{EVENT.subtitle}</p>
           <h2 className="text-2xl font-bold text-[#101828] mb-1">
-            AUWC Half Life Celebration
+            AUWC Order Jersey
           </h2>
           <h2 className="text-base text-[#667085] mb-4">
             Department of CoTM class Jersey Order

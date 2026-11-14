@@ -236,7 +236,7 @@ export default function RegistrationForm() {
           </div>
           <h2 className="h1 text-[1.75rem]">Successfully Submitted!</h2>
           <p className="mx-auto mt-3 max-w-md text-[0.9375rem] leading-relaxed text-[#667085]">
-            Your Half-Life Celebration registration has been submitted successfully. We will verify your payment
+            Your AUWC Order Jersey registration has been submitted successfully. We will verify your payment
             and confirm your spot.
           </p>
 
