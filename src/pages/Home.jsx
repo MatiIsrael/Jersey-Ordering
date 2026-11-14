@@ -5,7 +5,7 @@ import { EVENT } from '../config.js'
 function LogoMark() {
   return (
     <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#4f46e5] font-sans text-sm font-extrabold text-white shadow-sm">
-      AUWC
+      AU
     </span>
   )
 }
