@@ -291,7 +291,7 @@ export default function RegistrationForm() {
                     Payment Information
                   </h2>
                   <p className="mt-0.5 text-[0.8125rem] text-[#667085]">
-                    Pay 999 Birr first — then fill in the form below.
+                    Pay {PAYMENT.price} first — then fill in the form below.
                   </p>
                 </div>
               </div>

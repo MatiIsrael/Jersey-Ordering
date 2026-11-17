@@ -16,8 +16,8 @@ export const EVENT = {
 }
 
 export const PAYMENT = {
-  price: '999 Birr',
-  priceValue: 999,
+  price: '700 Birr',
+  priceValue: 700,
   holderName: 'Sami Raga Nado',
   telebirr: import.meta.env.VITE_TELEBIRR_NUMBER || '0912717161',
   cbe: import.meta.env.VITE_CBE_ACCOUNT || '1000348148072',
